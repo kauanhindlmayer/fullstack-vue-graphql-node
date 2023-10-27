@@ -20,18 +20,39 @@
                 <div class="list-group">
                   <li
                     class="list-group-item"
-                    v-for="prefix in prefixes"
-                    :key="prefix"
+                    v-for="prefixe in prefixes"
+                    :key="prefixe"
                   >
-                    {{ prefix }}
+                    <div class="row">
+                      <div class="col-md">
+                        {{ prefixe }}
+                      </div>
+                      <div class="col-md text-right">
+                        <button
+                          class="btn btn-info"
+                          @click="deletePrefixe(prefixe)"
+                        >
+                          <span class="fa fa-trash"></span>
+                        </button>
+                      </div>
+                    </div>
                   </li>
                 </div>
                 <br />
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Digite o prefixo"
-                />
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Digite o prefixo"
+                    v-model="prefixe"
+                    @keyup.enter="addPrefixe(prefixe)"
+                  />
+                  <div class="input-group-append">
+                    <button class="btn btn-info" @click="addPrefixe(prefixe)">
+                      <span class="fa fa-plus"></span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -47,15 +68,36 @@
                     v-for="sufixe in sufixes"
                     :key="sufixe"
                   >
-                    {{ sufixe }}
+                    <div class="row">
+                      <div class="col-md">
+                        {{ sufixe }}
+                      </div>
+                      <div class="col-md text-right">
+                        <button
+                          class="btn btn-info"
+                          @click="deleteSufixe(sufixe)"
+                        >
+                          <span class="fa fa-trash"></span>
+                        </button>
+                      </div>
+                    </div>
                   </li>
                 </div>
                 <br />
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Digite o sufixo"
-                />
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Digite o sufixo"
+                    v-model="sufixe"
+                    @keyup.enter="addSufixe(sufixe)"
+                  />
+                  <div class="input-group-append">
+                    <button class="btn btn-info" @click="addSufixe(sufixe)">
+                      <span class="fa fa-plus"></span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -90,6 +132,8 @@ export default {
   name: "App",
   data: function () {
     return {
+      prefixe: "",
+      sufixe: "",
       prefixes: ["Air", "Jet", "Flight"],
       sufixes: ["Hub", "Station", "Mart"],
       domains: [
@@ -104,6 +148,34 @@ export default {
         "FlightMart",
       ],
     };
+  },
+  methods: {
+    addPrefixe(prefixe) {
+      this.prefixes.push(prefixe);
+      this.prefixe = "";
+      this.generate();
+    },
+    deletePrefixe(prefixe) {
+      this.prefixes.splice(this.prefixes.indexOf(prefixe), 1);
+      this.generate();
+    },
+    addSufixe(sufixe) {
+      this.sufixes.push(sufixe);
+      this.sufixe = "";
+      this.generate();
+    },
+    deleteSufixe(sufixe) {
+      this.sufixes.splice(this.sufixes.indexOf(sufixe), 1);
+      this.generate();
+    },
+    generate() {
+      this.domains = [];
+      this.prefixes.forEach((prefix) => {
+        this.sufixes.forEach((sufixe) => {
+          this.domains.push(prefix + sufixe);
+        });
+      });
+    },
   },
 };
 </script>

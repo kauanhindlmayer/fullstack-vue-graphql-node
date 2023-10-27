@@ -112,9 +112,22 @@
               <li
                 class="list-group-item"
                 v-for="domain in domains"
-                :key="domain"
+                :key="domain.name"
               >
-                {{ domain }}
+                <div class="row">
+                  <div class="col-md">
+                    {{ domain.name }}
+                  </div>
+                  <div class="col-md text-right">
+                    <a
+                      class="btn btn-info"
+                      href="http://hostgator.com.br"
+                      target="_blank"
+                    >
+                      <span class="fa fa-shopping-cart"></span>
+                    </a>
+                  </div>
+                </div>
               </li>
             </ul>
           </div>
@@ -136,45 +149,36 @@ export default {
       sufixe: "",
       prefixes: ["Air", "Jet", "Flight"],
       sufixes: ["Hub", "Station", "Mart"],
-      domains: [
-        "AirHub",
-        "AirStation",
-        "AirMart",
-        "JetHub",
-        "JetStation",
-        "JetMart",
-        "FlightHub",
-        "FlightStation",
-        "FlightMart",
-      ],
     };
+  },
+  computed: {
+    domains() {
+      const domains = [];
+      this.prefixes.forEach((prefix) => {
+        this.sufixes.forEach((sufixe) => {
+          const name = prefix + sufixe;
+          const url = name.toLocaleLowerCase();
+          const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com`;
+          domains.push({ name, checkout });
+        });
+      });
+      return domains;
+    },
   },
   methods: {
     addPrefixe(prefixe) {
       this.prefixes.push(prefixe);
       this.prefixe = "";
-      this.generate();
     },
     deletePrefixe(prefixe) {
       this.prefixes.splice(this.prefixes.indexOf(prefixe), 1);
-      this.generate();
     },
     addSufixe(sufixe) {
       this.sufixes.push(sufixe);
       this.sufixe = "";
-      this.generate();
     },
     deleteSufixe(sufixe) {
       this.sufixes.splice(this.sufixes.indexOf(sufixe), 1);
-      this.generate();
-    },
-    generate() {
-      this.domains = [];
-      this.prefixes.forEach((prefix) => {
-        this.sufixes.forEach((sufixe) => {
-          this.domains.push(prefix + sufixe);
-        });
-      });
     },
   },
 };

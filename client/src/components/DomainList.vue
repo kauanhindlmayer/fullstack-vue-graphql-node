@@ -54,6 +54,7 @@
 <script>
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
+import axios from "axios";
 import AppItemList from "@/components/AppItemList.vue";
 
 export default {
@@ -65,8 +66,8 @@ export default {
     return {
       prefixe: "",
       sufixe: "",
-      prefixes: ["Air", "Jet", "Flight"],
-      sufixes: ["Hub", "Station", "Mart"],
+      prefixes: [],
+      sufixes: [],
     };
   },
   computed: {
@@ -98,6 +99,30 @@ export default {
     deleteSufixe(sufixe) {
       this.sufixes.splice(this.sufixes.indexOf(sufixe), 1);
     },
+  },
+  created() {
+    axios({
+      url: "http://localhost:4000",
+      method: "post",
+      data: {
+        query: `
+          query {
+            prefixes: items (type: "Prefixe") {
+              id
+              type
+              description
+            }
+            sufixes: items (type: "Sufixe") {
+              description
+            }
+          }
+        `,
+      },
+    }).then((response) => {
+      const query = response.data;
+      this.prefixes = query.data.prefixes.map((prefix) => prefix.description);
+      this.sufixes = query.data.sufixes.map((sufixe) => sufixe.description);
+    });
   },
 };
 </script>

@@ -8,7 +8,7 @@
       </h6>
     </div>
     <div id="main">
-      <DomainList />
+      <router-view />
     </div>
   </div>
 </template>
@@ -16,13 +16,9 @@
 <script>
 import "bootstrap/dist/css/bootstrap.css";
 import "font-awesome/css/font-awesome.css";
-import DomainList from "./components/DomainList.vue";
 
 export default {
   name: "App",
-  components: {
-    DomainList,
-  },
 };
 </script>
 

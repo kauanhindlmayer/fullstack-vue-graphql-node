@@ -33,10 +33,15 @@
             :key="domain.name"
           >
             <div class="row">
-              <div class="col-md">
+              <div class="col-md-6">
                 {{ domain.name }}
               </div>
-              <div class="col-md text-right">
+              <div class="col-md-3">
+                <span class="badge badge-info">
+                  {{ domain.available ? "Disponível" : "Não Disponível" }}
+                </span>
+              </div>
+              <div class="col-md-3 text-right">
                 <a
                   class="btn btn-info"
                   href="http://hostgator.com.br"
@@ -70,21 +75,8 @@ export default {
         prefixe: [],
         sufixe: [],
       },
+      domains: [],
     };
-  },
-  computed: {
-    domains() {
-      const domains = [];
-      this.items.prefixe.forEach((prefix) => {
-        this.items.sufixe.forEach((sufixe) => {
-          const name = prefix.description + sufixe.description;
-          const url = name.toLocaleLowerCase();
-          const checkout = `https://cart.hostgator.com.br/?pid=d&sld=${url}&tld=.com`;
-          domains.push({ name, checkout });
-        });
-      });
-      return domains;
-    },
   },
   methods: {
     addItem(item) {
@@ -109,6 +101,7 @@ export default {
         const query = response.data;
         const newItem = query.data.newItem;
         this.items[item.type].push(newItem);
+        this.generateDomains();
       });
     },
     deleteItem(item) {
@@ -126,11 +119,12 @@ export default {
           },
         },
       }).then(() => {
-        this.getItems(item.type);
+        this.items[item.type].splice(this.items[item.type].indexOf(item), 1);
+        this.generateDomains();
       });
     },
     getItems(type) {
-      axios({
+      return axios({
         url: "http://localhost:4000",
         method: "post",
         data: {
@@ -152,10 +146,33 @@ export default {
         this.items[type] = query.data.items;
       });
     },
+    generateDomains() {
+      axios({
+        url: "http://localhost:4000",
+        method: "post",
+        data: {
+          query: `
+          mutation {
+            domains: generateDomains {
+              name
+              checkout
+              available
+            }
+          }
+        `,
+        },
+      }).then((response) => {
+        const query = response.data;
+        this.domains = query.data.domains;
+      });
+    },
   },
   created() {
-    this.getItems("prefixe");
-    this.getItems("sufixe");
+    Promise.all([this.getItems("prefixe"), this.getItems("sufixe")]).then(
+      () => {
+        this.generateDomains();
+      }
+    );
   },
 };
 </script>

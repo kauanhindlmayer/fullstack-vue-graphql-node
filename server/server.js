@@ -1,5 +1,6 @@
 const { ApolloServer } = require("apollo-server");
 const dns = require("dns");
+const service = require("./service");
 
 const typeDefs = `
   type Item {
@@ -32,15 +33,6 @@ const typeDefs = `
   }
 `;
 
-const items = [
-  { id: 1, type: "prefixe", description: "Air" },
-  { id: 2, type: "prefixe", description: "Jet" },
-  { id: 3, type: "prefixe", description: "Flight" },
-  { id: 4, type: "sufixe", description: "Hub" },
-  { id: 5, type: "sufixe", description: "Station" },
-  { id: 6, type: "sufixe", description: "Mart" },
-];
-
 const isDomainAvailable = (domain) => {
   return new Promise((resolve, reject) => {
     dns.resolve(domain, (error) => {
@@ -55,26 +47,25 @@ const isDomainAvailable = (domain) => {
 
 const resolvers = {
   Query: {
-    items(_, args) {
-      return items.filter((item) => item.type === args.type);
+    async items(_, args) {
+      const items = await service.getItensByType(args.type);
+      return items;
     },
   },
   Mutation: {
-    saveItem(_, args) {
+    async saveItem(_, args) {
       const item = args.item;
-      item.id = Math.floor(Math.random() * 1000);
-      items.push(item);
-      return item;
+      const [newItem] = await service.saveItem(item);
+      return newItem;
     },
-    deleteItem(_, args) {
+    async deleteItem(_, args) {
       const id = args.id;
-      const item = items.find((item) => item.id === id);
-      if (!item) return false;
-      items.splice(items.indexOf(item), 1);
+      await service.deleteItem(id);
       return true;
     },
     async generateDomains() {
       const domains = [];
+      const items = await service.getItems();
       const prefixes = items.filter((item) => item.type === "prefixe");
       const sufixes = items.filter((item) => item.type === "sufixe");
 
